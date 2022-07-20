@@ -1,0 +1,25 @@
+﻿@inject NavigationManager NavManager
+
+<RadzenCard Style="width: 100%; padding: 0;">
+    <RadzenMenu Click="OnParentClicked" Style="padding: 4px;">
+        <RadzenMenuItem Text="Home" Icon="home" Style="">
+        </RadzenMenuItem>
+        <RadzenMenuItem Text="Writer" Icon="description">
+        </RadzenMenuItem>
+    </RadzenMenu>
+</RadzenCard>
+
+@code {
+    void OnParentClicked(MenuItemEventArgs args)
+    {
+        switch (args.Text)
+        {
+            case "Home":
+                NavManager.NavigateTo("/");
+                break;
+            case "Writer":
+                NavManager.NavigateTo("/writer");
+                break;
+        }
+    }
+}
