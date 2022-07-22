@@ -15,6 +15,10 @@ namespace ScriptWriterApp {
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<NotificationService>();
