@@ -4,6 +4,26 @@
 <PageTitle>Writer</PageTitle>
 
 
-@code {
 
+<textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
+
+@code {
+    private int Rows = 20;
+
+    private void CalculateSize(string value)
+    {
+        Rows = Math.Max(value.Split('\n').Length, value.Split('\r').Length);
+        Rows = Math.Max(Rows, 20);
+    }
+
+    string _myText;
+    protected string MyText
+    {
+      get => _myText;
+      set
+      {
+        _myText = value; 
+        CalculateSize(value);
+      }
+    }
 }
