@@ -1,14 +1,45 @@
 ﻿@page "/writer"
 @namespace ScriptWriterApp.Pages
+@inject BrowserService browserService
 
 <PageTitle>Writer</PageTitle>
 
+<RadzenButton Icon="dns" style="float:left; background-color: #28363c;position:fixed; top: 80px" Click="ShowPanelMenu"/>
+
+<RadzenCard class="px-3" Style="position: absolute;margin: 0;width: 300px;height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
+    <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
+    <RadzenPanelMenu Style="">
+        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
+    </RadzenPanelMenu>
+</RadzenCard>
 
 
 <textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
 
 @code {
+    //private static int Height { get; set; }
+    //private static int Width { get; set; }
+    //private string ExpandButtonStyle;
+
+    //private async Task GetDimensions() 
+    //{
+    //    var dimension = await browserService.GetDimensions();
+    //    Height = dimension.Height;
+    //    Width = dimension.Width;
+    //}
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    await GetDimensions();
+    //}
+
+    //textarea
     private int Rows = 20;
+
+    private bool PanelMenuVisible = false;
 
     private void CalculateSize(string value)
     {
@@ -16,14 +47,22 @@
         Rows = Math.Max(Rows, 20);
     }
 
-    string _myText;
+    private string _myText;
     protected string MyText
     {
-      get => _myText;
-      set
-      {
-        _myText = value; 
-        CalculateSize(value);
-      }
+        get => _myText;
+        set
+        {
+            _myText = value; 
+            CalculateSize(value);
+        }
+    }
+
+    //PanelMenu
+
+
+    private void ShowPanelMenu()
+    {
+        PanelMenuVisible = (PanelMenuVisible) ? false : true;
     }
 }

@@ -11,6 +11,14 @@
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
     <link rel="stylesheet" href="ScriptWriterApp.styles.css" />
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script type="text/javascript">
+        window.getDimensions = function() {
+            return {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                };
+        };
+    </script>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
@@ -20,7 +28,7 @@
         <environment include="Staging,Production">
             An error has occurred. This application may no longer respond until reloaded.
         </environment>
-        <environment include="Development">
+        <environment include="Development" style="position: absolute;">
             An unhandled exception has occurred. See browser dev tools for details.
         </environment>
         <a href="" class="reload">Reload</a>

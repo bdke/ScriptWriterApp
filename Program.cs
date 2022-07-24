@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ScriptWriterApp.Data;
+using ScriptWriterApp.Functions;
 using Radzen;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace ScriptWriterApp {
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddScoped<TooltipService>();
             builder.Services.AddScoped<ContextMenuService>();
+            builder.Services.AddScoped<BrowserService>();
             //builder.Services.AddSingleton<WeatherForecastService>();
 
             var app = builder.Build();
