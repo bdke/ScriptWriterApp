@@ -6,6 +6,7 @@ using Radzen;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using BlazorPro.BlazorSize;
 //using ScriptWriterApp.Data;
 
 namespace ScriptWriterApp {
@@ -25,7 +26,7 @@ namespace ScriptWriterApp {
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddScoped<TooltipService>();
             builder.Services.AddScoped<ContextMenuService>();
-            builder.Services.AddScoped<BrowserService>();
+            builder.Services.AddScoped<IResizeListener, ResizeListener>();
             //builder.Services.AddSingleton<WeatherForecastService>();
 
             var app = builder.Build();

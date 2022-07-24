@@ -10,8 +10,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\file.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BlazorAnimate" Version="3.0.0" />
+    <PackageReference Include="BlazorPro.BlazorSize" Version="6.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.7.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

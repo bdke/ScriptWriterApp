@@ -1,14 +1,15 @@
 ﻿@page "/writer"
 @namespace ScriptWriterApp.Pages
-@inject BrowserService browserService
+@inject IJSRuntime jsRuntime
+@inject IResizeListener resizeListener
 
 <PageTitle>Writer</PageTitle>
 
-<RadzenButton Icon="dns" style="float:left; background-color: #28363c;position:fixed; top: 80px" Click="ShowPanelMenu"/>
+<RadzenButton Icon="dns" style=@ExpandButtonStyle Click="ShowPanelMenu"/>
 
-<RadzenCard class="px-3" Style="position: absolute;margin: 0;width: 300px;height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
+<RadzenCard class="px-3" Style="position: absolute;margin: 0;width: fit-content; max-width: 200px; height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
     <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
-    <RadzenPanelMenu Style="">
+    <RadzenPanelMenu>
         <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
@@ -20,21 +21,32 @@
 <textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
 
 @code {
-    //private static int Height { get; set; }
-    //private static int Width { get; set; }
-    //private string ExpandButtonStyle;
+    //browser informations
+    IJSObjectReference? browserFunctions;
+    BrowserDimension browserDimension;
+    //style
+    private string ExpandButtonStyle { get; set; }
 
-    //private async Task GetDimensions() 
-    //{
-    //    var dimension = await browserService.GetDimensions();
-    //    Height = dimension.Height;
-    //    Width = dimension.Width;
-    //}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            browserFunctions = await this.jsRuntime.InvokeAsync<IJSObjectReference>("Functions.getBrowserAction");
+            browserDimension = await browserFunctions.InvokeAsync<BrowserDimension>("getWindowDimensions");
+            ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
+        } catch (InvalidOperationException)
+        {
+            ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
+        }
+    }
 
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    await GetDimensions();
-    //}
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            resizeListener.OnResized += OnWindowResize;
+        }
+    }
 
     //textarea
     private int Rows = 20;
@@ -60,9 +72,14 @@
 
     //PanelMenu
 
-
     private void ShowPanelMenu()
     {
         PanelMenuVisible = (PanelMenuVisible) ? false : true;
+    }
+
+    private async void OnWindowResize(object _, BrowserWindowSize window)
+    {
+        ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {window.Height / 2}px";
+        StateHasChanged();
     }
 }

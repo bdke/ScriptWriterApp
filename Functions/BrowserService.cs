@@ -1,25 +1,11 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
 namespace ScriptWriterApp.Functions
 {
-    public class BrowserService
-    {
-        private readonly IJSRuntime _js;
 
-        public BrowserService(IJSRuntime js)
-        {
-            _js = js;
-        }
-
-        public async Task<BrowserDimension> GetDimensions()
-        {
-            return await _js.InvokeAsync<BrowserDimension>("getDimensions");
-        }
-
-    }
-
-    public class BrowserDimension
+    public struct BrowserDimension
     {
         public int Width { get; set; }
         public int Height { get; set; }
