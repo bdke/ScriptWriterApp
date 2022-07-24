@@ -11,7 +11,7 @@ using ScriptWriterApp.Data;
 namespace ScriptWriterApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220721103046_Initial Commit")]
+    [Migration("20220724112705_InitialCommit")]
     partial class InitialCommit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,31 +25,44 @@ namespace ScriptWriterApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DateTime")
+                    b.Property<DateTime?>("DateTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FilePath")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LineNum")
+                    b.Property<int?>("LineNum")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Modified")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Origin")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
 
                     b.ToTable("ChangeHistories");
+                });
+
+            modelBuilder.Entity("ScriptWriterApp.Data.PagesData", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Texts")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("PagesData");
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.TextsData", b =>
@@ -59,14 +72,12 @@ namespace ScriptWriterApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FilePath")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LineNum")
+                    b.Property<int?>("LineNum")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");

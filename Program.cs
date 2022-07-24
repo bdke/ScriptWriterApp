@@ -26,6 +26,9 @@ namespace ScriptWriterApp {
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddScoped<TooltipService>();
             builder.Services.AddScoped<ContextMenuService>();
+
+            builder.Services.AddScoped<DatabaseService>();
+
             builder.Services.AddScoped<IResizeListener, ResizeListener>();
             //builder.Services.AddSingleton<WeatherForecastService>();
 

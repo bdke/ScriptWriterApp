@@ -5,17 +5,21 @@
 
 <PageTitle>Writer</PageTitle>
 
-<RadzenButton Icon="dns" style=@ExpandButtonStyle Click="ShowPanelMenu"/>
+<RadzenButton Icon="dns" style=@ExpandButtonStyle Click="ShowPanelMenu" Visible=@ExpandButtonVisible/>
+
 
 <RadzenCard class="px-3" Style="position: absolute;margin: 0;width: fit-content; max-width: 200px; height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
-    <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
-    <RadzenPanelMenu>
-        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Path="#" Text="Test" Icon="dns"></RadzenPanelMenuItem>
-    </RadzenPanelMenu>
+    <Animate Animation="Animations.SlideRight" Duration="TimeSpan.FromSeconds(0.5)">
+        <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </Animate>
 </RadzenCard>
+
 
 
 <textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
@@ -52,6 +56,7 @@
     private int Rows = 20;
 
     private bool PanelMenuVisible = false;
+    private bool ExpandButtonVisible = true;
 
     private void CalculateSize(string value)
     {
@@ -75,6 +80,7 @@
     private void ShowPanelMenu()
     {
         PanelMenuVisible = (PanelMenuVisible) ? false : true;
+        ExpandButtonVisible = (ExpandButtonVisible) ? false : true;
     }
 
     private async void OnWindowResize(object _, BrowserWindowSize window)

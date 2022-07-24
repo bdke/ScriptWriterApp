@@ -15,16 +15,30 @@ namespace ScriptWriterApp.Migrations
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    FilePath = table.Column<string>(type: "TEXT", nullable: false),
-                    LineNum = table.Column<int>(type: "INTEGER", nullable: false),
-                    Origin = table.Column<string>(type: "TEXT", nullable: false),
-                    Modified = table.Column<string>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false)
+                    DateTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    FilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    LineNum = table.Column<int>(type: "INTEGER", nullable: true),
+                    Origin = table.Column<string>(type: "TEXT", nullable: true),
+                    Modified = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ChangeHistories", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PagesData",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Path = table.Column<string>(type: "TEXT", nullable: true),
+                    Texts = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PagesData", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -33,9 +47,9 @@ namespace ScriptWriterApp.Migrations
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FilePath = table.Column<string>(type: "TEXT", nullable: false),
-                    LineNum = table.Column<int>(type: "INTEGER", nullable: false),
-                    Text = table.Column<string>(type: "TEXT", nullable: false)
+                    FilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    LineNum = table.Column<int>(type: "INTEGER", nullable: true),
+                    Text = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,6 +61,9 @@ namespace ScriptWriterApp.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ChangeHistories");
+
+            migrationBuilder.DropTable(
+                name: "PagesData");
 
             migrationBuilder.DropTable(
                 name: "TextsData");

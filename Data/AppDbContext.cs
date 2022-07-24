@@ -14,9 +14,11 @@ namespace ScriptWriterApp.Data
 
             List<ChangeHistory> ChangeHistories = new List<ChangeHistory>();
             List<TextsData> TextsDatas = new List<TextsData>();
+            List<PagesData> PagesDatas = new List<PagesData>();
 
             modelBuilder.Entity<ChangeHistory>().HasData(ChangeHistories);
             modelBuilder.Entity<TextsData>().HasData(TextsDatas);
+            modelBuilder.Entity<PagesData>().HasData(PagesDatas);
         }
     }
 }
