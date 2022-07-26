@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
+﻿using ScriptWriterApp.IData;
 
 namespace ScriptWriterApp.Data
 {
-    public class TextsData
+    public class TextsData : IDatabaseData
     {
         public int ID { get; set; }
         public string? FilePath { get; set; }

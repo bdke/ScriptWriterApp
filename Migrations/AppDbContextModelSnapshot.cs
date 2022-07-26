@@ -38,7 +38,7 @@ namespace ScriptWriterApp.Migrations
                     b.Property<string>("Origin")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Status")
+                    b.Property<char?>("Status")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");

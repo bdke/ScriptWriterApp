@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
+﻿using ScriptWriterApp.IData;
 
 namespace ScriptWriterApp.Data
 {
-    public class ChangeHistory
+    public class ChangeHistory : IDatabaseData
     {
         public int ID { get; set; }
         public DateTime? DateTime { get; set; }
@@ -11,6 +10,6 @@ namespace ScriptWriterApp.Data
         public int? LineNum { get; set; }
         public string? Origin { get; set; }
         public string? Modified { get; set; }
-        public string? Status { get; set; }
+        public char? Status { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace ScriptWriterApp.Migrations
                     LineNum = table.Column<int>(type: "INTEGER", nullable: true),
                     Origin = table.Column<string>(type: "TEXT", nullable: true),
                     Modified = table.Column<string>(type: "TEXT", nullable: true),
-                    Status = table.Column<string>(type: "TEXT", nullable: true)
+                    Status = table.Column<char>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

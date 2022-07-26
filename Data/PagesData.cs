@@ -1,6 +1,8 @@
-﻿namespace ScriptWriterApp.Data
+﻿using ScriptWriterApp.IData;
+
+namespace ScriptWriterApp.Data
 {
-    public class PagesData
+    public class PagesData : IDatabaseData
     {
         public int ID { get; set; }
         public string? Path { get; set; }

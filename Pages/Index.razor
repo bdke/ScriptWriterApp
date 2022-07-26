@@ -2,30 +2,42 @@
 @namespace ScriptWriterApp.Pages
 @using Radzen.Blazor.Rendering
 @using Microsoft.EntityFrameworkCore
-@inject DatabaseService dbService
-
+@inject ChangeHistoryAccessService changeHistoryAccess
 <PageTitle>Scripter</PageTitle>
-
+@*
+<label class="mx-auto" title="debug">@Debug</label>*@
 <h3 class="text-center mt-2">Change Histories</h3>
 <RadzenDataGrid class="mt-2 px-4" AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@changes" TItem="ChangeHistory" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
     <Columns>
         <RadzenDataGridColumn TItem="ChangeHistory" Property="ID" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="DateTime" Filterable="false" Title="Date" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="DateTime" Filterable="false" Title="Time" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
         <RadzenDataGridColumn TItem="ChangeHistory" Property="FilePath" Filterable="false" Title="Location" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="LineNum" Filterable="false" Title="Line Number" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
         <RadzenDataGridColumn TItem="ChangeHistory" Property="Origin" Filterable="false" Title="Original Text" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
         <RadzenDataGridColumn TItem="ChangeHistory" Property="Modified" Filterable="false" Title="Modified Text" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="Status" Filterable="false" Title="Status" Frozen="true" Width="70px" TextAlign="TextAlign.Left" />
     </Columns>
 </RadzenDataGrid>
 
 
 
+
+
 @code {
-    [Inject] private AppDbContext context { get; set; }
+    [Inject] 
+    private AppDbContext context { get; set; }
     private List<ChangeHistory> changes = new List<ChangeHistory>();
+    //private DatabaseAccessService<ChangeHistory> ChangeHistoriesAccess;
+    //private string? Debug;
 
     protected override async Task OnInitializedAsync()
     {
-        changes = await context.ChangeHistories.ToListAsync();
+        //ChangeHistoriesAccess = new DatabaseAccessService<ChangeHistory>(context);
+        //Debug = ChangeHistoriesAccess.debug;
+        //Debug = context.ChangeHistories.ToList().ToString();
+
+        changes = await changeHistoryAccess.GetValueAsync();
+        //await changeHistoryAccess.AddValueAsync(new ChangeHistory() { DateTime = DateTime.Now, FilePath = @"./", LineNum = 13, Modified = "ur mom", Origin = "fuck u", Status = 'M' });
     }
 }

@@ -1,42 +1,89 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScriptWriterApp.Data;
+using ScriptWriterApp.IData;
 
 namespace ScriptWriterApp.Functions
 {
-    class DatabaseService
+
+    public class DatabaseAccessService<T> where T : IDatabaseData
     {
-        private AppDbContext dbContext;
+        protected AppDbContext dbContext;
 
-        public DatabaseService(AppDbContext dbContext)        
+        public DatabaseAccessService(AppDbContext context)
         {
-            this.dbContext = dbContext;
-        }   
+            dbContext = context;
+        }
 
-        public async Task<List<ChangeHistory>> GetChangeHistoriesAsync()
+        public virtual Task<bool> AddValueAsync(T obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual Task<bool> DeleteValueAsync(T obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual Task<List<T>> GetValueAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual Task<bool> UpdateValueAsync(T obj)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ChangeHistoryAccessService : DatabaseAccessService<ChangeHistory>
+    {
+        public ChangeHistoryAccessService(AppDbContext context) : base(context) { }
+
+        public override async Task<List<ChangeHistory>> GetValueAsync()
         {
             return await dbContext.ChangeHistories.ToListAsync();
         }
 
-        public async Task<ChangeHistory> AddChangeHistoryAsync(ChangeHistory changeHistory)
+        public override async Task<bool> AddValueAsync(ChangeHistory obj)
         {
             try
             {
-                dbContext.ChangeHistories.Add(changeHistory);
+                dbContext.ChangeHistories.Add(obj);
                 await dbContext.SaveChangesAsync();
+                return true;
             }
             catch (Exception)
             {
                 throw;
             }
-            return changeHistory;
         }
 
-        public async Task DeleteChangeHistoryAsync(ChangeHistory changeHistory)
+        public override async Task<bool> UpdateValueAsync(ChangeHistory obj)
         {
             try
             {
-                dbContext.ChangeHistories.Remove(changeHistory);
+                var Exist = dbContext.ChangeHistories.FirstOrDefault(x => x.ID == obj.ID);
+                if (Exist != null)
+                {
+                    dbContext.Update(obj);
+                    await dbContext.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task<bool> DeleteValueAsync(ChangeHistory obj)
+        {
+            try
+            {
+                dbContext.ChangeHistories.Remove(obj);
                 await dbContext.SaveChangesAsync();
+                return true;
             }
             catch (Exception)
             {
