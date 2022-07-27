@@ -60,7 +60,7 @@ namespace ScriptWriterApp.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("PagesData");
+                    b.ToTable("PagesDatas");
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.TextsData", b =>

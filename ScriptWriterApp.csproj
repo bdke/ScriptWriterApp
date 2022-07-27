@@ -27,10 +27,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Radzen.Blazor" Version="3.19.5" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Database\" />
+    <Folder Include="DebugFile\Logging\" />
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\Images\" />
   </ItemGroup>

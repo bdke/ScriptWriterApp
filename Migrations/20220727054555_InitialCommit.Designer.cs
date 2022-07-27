@@ -11,7 +11,7 @@ using ScriptWriterApp.Data;
 namespace ScriptWriterApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220726135248_InitialCommit")]
+    [Migration("20220727054555_InitialCommit")]
     partial class InitialCommit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,7 +62,7 @@ namespace ScriptWriterApp.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("PagesData");
+                    b.ToTable("PagesDatas");
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.TextsData", b =>

@@ -1,11 +1,15 @@
 ﻿@page "/"
 @namespace ScriptWriterApp.Pages
+
 @using Radzen.Blazor.Rendering
 @using Microsoft.EntityFrameworkCore
+
+@inject IHttpContextAccessor httpContextAccessor
 @inject ChangeHistoryAccessService changeHistoryAccess
+@inject ILogger<Index> logger
+
 <PageTitle>Scripter</PageTitle>
-@*
-<label class="mx-auto" title="debug">@Debug</label>*@
+
 <h3 class="text-center mt-2">Change Histories</h3>
 <RadzenDataGrid class="mt-2 px-4" AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@changes" TItem="ChangeHistory" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
@@ -27,17 +31,18 @@
 @code {
     [Inject] 
     private AppDbContext context { get; set; }
+
+    private Logging log;
+
     private List<ChangeHistory> changes = new List<ChangeHistory>();
-    //private DatabaseAccessService<ChangeHistory> ChangeHistoriesAccess;
-    //private string? Debug;
 
     protected override async Task OnInitializedAsync()
     {
-        //ChangeHistoriesAccess = new DatabaseAccessService<ChangeHistory>(context);
-        //Debug = ChangeHistoriesAccess.debug;
-        //Debug = context.ChangeHistories.ToList().ToString();
+        string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, IP);
 
         changes = await changeHistoryAccess.GetValueAsync();
+        log.Info("Initialized Index Page");
         //await changeHistoryAccess.AddValueAsync(new ChangeHistory() { DateTime = DateTime.Now, FilePath = @"./", LineNum = 13, Modified = "ur mom", Origin = "fuck u", Status = 'M' });
     }
 }

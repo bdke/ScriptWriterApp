@@ -17,6 +17,8 @@ namespace ScriptWriterApp {
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -28,9 +30,12 @@ namespace ScriptWriterApp {
             builder.Services.AddScoped<ContextMenuService>();
 
             builder.Services.AddScoped<ChangeHistoryAccessService>();
+            builder.Services.AddScoped<PagesDataAccessService>();
 
             builder.Services.AddScoped<IResizeListener, ResizeListener>();
-            //builder.Services.AddSingleton<WeatherForecastService>();
+
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
 
             var app = builder.Build();
 

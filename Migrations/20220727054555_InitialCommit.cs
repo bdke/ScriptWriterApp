@@ -28,7 +28,7 @@ namespace ScriptWriterApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PagesData",
+                name: "PagesDatas",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
@@ -38,7 +38,7 @@ namespace ScriptWriterApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PagesData", x => x.ID);
+                    table.PrimaryKey("PK_PagesDatas", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -63,7 +63,7 @@ namespace ScriptWriterApp.Migrations
                 name: "ChangeHistories");
 
             migrationBuilder.DropTable(
-                name: "PagesData");
+                name: "PagesDatas");
 
             migrationBuilder.DropTable(
                 name: "TextsData");

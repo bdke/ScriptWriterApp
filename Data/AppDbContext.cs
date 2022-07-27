@@ -9,10 +9,7 @@ namespace ScriptWriterApp.Data
         
         public DbSet<ChangeHistory> ChangeHistories { get; set; }
 
-        public Dictionary<Type, string> Variables = new Dictionary<Type, string>() 
-        {
-            { typeof(ChangeHistory), nameof(ChangeHistories) }
-        };
+        public DbSet<PagesData> PagesDatas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
