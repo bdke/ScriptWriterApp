@@ -16,7 +16,7 @@ namespace ScriptWriterApp.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ChangeHistory>().HasData(new List<ChangeHistory>());
             modelBuilder.Entity<TextsData>().HasData(new List<TextsData>());
-            modelBuilder.Entity<PagesData>().HasData(new List<PagesData>());
+            modelBuilder.Entity<PagesData>().HasData(new List<PagesData>() { new PagesData() { ID = 1 ,Path = "/", Texts = "my mom is beautiful", pTexts = "" } });
         }
     }
 }

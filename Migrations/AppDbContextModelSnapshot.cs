@@ -58,9 +58,20 @@ namespace ScriptWriterApp.Migrations
                     b.Property<string>("Texts")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("pTexts")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("ID");
 
                     b.ToTable("PagesDatas");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Path = "/",
+                            Texts = "my mom is beautiful"
+                        });
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.TextsData", b =>

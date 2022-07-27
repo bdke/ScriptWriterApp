@@ -12,7 +12,7 @@ var Functions;
         BrowserAction.prototype.getWindowDimensions = function () {
             return {
                 width: window.innerWidth,
-                height: window.innerWidth
+                height: window.innerHeight
             };
         };
         return BrowserAction;

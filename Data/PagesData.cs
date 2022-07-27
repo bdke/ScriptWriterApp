@@ -7,5 +7,6 @@ namespace ScriptWriterApp.Data
         public int ID { get; set; }
         public string? Path { get; set; }
         public string? Texts { get; set; }
+        public string? pTexts { get; set; }
     }
 }

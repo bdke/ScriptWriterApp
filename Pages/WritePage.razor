@@ -3,6 +3,10 @@
 
 @inject IJSRuntime jsRuntime
 @inject IResizeListener resizeListener
+@inject ILogger<WritePage> logger
+@inject IHttpContextAccessor httpContextAccessor
+
+@inject ChangeHistoryAccessService changeHistoryAccess
 @inject PagesDataAccessService pagesDataAccess
 @inject NavigationManager Nav
 
@@ -28,11 +32,13 @@
 <textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
 
 @code {
-    //TODO: create folder page and create individual path of pages
-    //TODO: also adding create folder and page button on Panel Menu
 
     [Parameter]
     public int PageID { get; set; }
+
+    private Logging log;
+    private List<PagesData> pageDatas;
+    private PagesData currentPageData;
 
     //browser informations
     IJSObjectReference? browserFunctions;
@@ -42,19 +48,30 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var pagesDatas = from t in await pagesDataAccess.GetValueAsync() select t.ID;
+        string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, IP);
 
-        if (!pagesDatas.Contains(PageID)) { Nav.NavigateTo("/Error"); }
+        pageDatas = await pagesDataAccess.GetValueAsync();
+
+        var pageDatasID = from t in pageDatas select t.ID;
+        if (!pageDatasID.Contains(PageID)) { Nav.NavigateTo("/Error"); }
+
+        currentPageData = pageDatas.Find(x => x.ID == PageID);
+        pTextValue = currentPageData.pTexts.Split("\n\n");
+        _myText = currentPageData.Texts;
+
 
         try
         {
             browserFunctions = await this.jsRuntime.InvokeAsync<IJSObjectReference>("Functions.getBrowserAction");
             browserDimension = await browserFunctions.InvokeAsync<BrowserDimension>("getWindowDimensions");
             ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
+            StateHasChanged();
         } 
         catch (InvalidOperationException)
         {
             ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
+            StateHasChanged();
         }
     }
 
@@ -72,10 +89,164 @@
     private bool PanelMenuVisible = false;
     private bool ExpandButtonVisible = true;
 
-    private void CalculateSize(string value)
+    private string[] pTextValue;
+
+    private async Task ChangeHistoryM(int i, string[] tmpValue)
     {
-        Rows = Math.Max(value.Split('\n').Length, value.Split('\r').Length);
-        Rows = Math.Max(Rows, 20);
+        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
+            {
+                DateTime = DateTime.Now,
+                FilePath = @$"/writer/{PageID}",
+                LineNum = i + 1,
+                Origin = pTextValue[i],
+                Modified = tmpValue[i],
+                Status = 'M'
+            }
+        );
+        log.Debug("Change History M");
+    }
+
+    private async Task ChangeHistoryMD(int i)
+    {
+        if (pTextValue[i].Replace("\n","") == "") { return; }
+
+        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
+            {
+                DateTime = DateTime.Now,
+                FilePath = @$"/writer/{PageID}",
+                LineNum = i + 1,
+                Origin = pTextValue[i],
+                Modified = "",
+                Status = 'Q'
+            }
+        );
+        log.Debug("Change History MD");
+    }
+
+    private async Task ChangeHistoryMA(int i, string[] tmpValue)
+    {
+        if (tmpValue[i].Replace("\n","") == "") { return; }
+
+        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
+            {
+                DateTime = DateTime.Now,
+                FilePath = @$"/writer/{PageID}",
+                LineNum = i + 1,
+                Origin = "",
+                Modified = tmpValue[i],
+                Status = 'C'
+            }
+        );
+        log.Debug("Change History MA");
+    }
+
+    private async Task DetectNewLine(string value)
+    {
+        try
+        {
+            //modifying texts won't show
+            if ((value.Last() == '\n' && value[value.Length-2] != '\n') && value != "")
+            {
+                string[] tmpValue = value.Split("\n\n");
+                _myText += "\n";
+                if (pTextValue.Length > tmpValue.Length)
+                {
+                    for (int i = 0; i < pTextValue.Length; i++)
+                    {
+                        try
+                        {
+                            if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
+                            {
+                                await ChangeHistoryM(i, tmpValue);
+                            }
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            await ChangeHistoryMD(i);
+                        }
+                    }
+                    pTextValue = value.Split("\n\n");
+                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
+                    currentPageData.Texts = _myText;
+                    await pagesDataAccess.UpdateValueAsync(currentPageData);
+                }
+                else if (pTextValue.Length < tmpValue.Length)
+                {
+                    for (int i = 0; i < tmpValue.Length; i++)
+                    {
+                        try
+                        {
+                            if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
+                            {
+                                await ChangeHistoryM(i, tmpValue);
+                            }
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            await ChangeHistoryMA(i, tmpValue);
+                        }
+                    }
+                    pTextValue = value.Split("\n\n");
+                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
+                    currentPageData.Texts = _myText;
+                    await pagesDataAccess.UpdateValueAsync(currentPageData);
+                }
+                else if (pTextValue.Length == tmpValue.Length)
+                {
+                    for (int i = 0; i < tmpValue.Length; i++)
+                    {
+                        if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
+                        {
+                            await ChangeHistoryM(i, tmpValue);
+                        }
+                    }
+                    pTextValue = value.Split("\n\n");
+                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
+                    currentPageData.Texts = _myText;
+                    await pagesDataAccess.UpdateValueAsync(currentPageData);
+                }
+            }
+            else if (value == "")
+            {
+                for (int i = 0; i < pTextValue.Length; i++)
+                {
+                    await ChangeHistoryMD(i);
+                }
+                pTextValue = new string[] { };
+                currentPageData.pTexts = string.Join("\n\n",pTextValue);
+                currentPageData.Texts = _myText;
+                await pagesDataAccess.UpdateValueAsync(currentPageData);
+            }
+
+
+        }
+        catch (IndexOutOfRangeException)
+        {
+            for (int i = 0; i < pTextValue.Length; i++)
+            {
+                await ChangeHistoryMD(i);
+            }
+            pTextValue = new string[] { };
+            currentPageData.pTexts = "";
+            currentPageData.Texts = _myText;
+            await pagesDataAccess.UpdateValueAsync(currentPageData);
+        }
+        catch (InvalidOperationException)
+        {
+            for (int i = 0; i < pTextValue.Length; i++)
+            {
+                await ChangeHistoryMD(i);
+            }
+            pTextValue = pTextValue = new string[] { };
+            currentPageData.pTexts = "";
+            currentPageData.Texts = _myText;
+            await pagesDataAccess.UpdateValueAsync(currentPageData);
+        }
+        catch (Exception e)
+        {
+            log.Critical(e.Message);
+            log.Critical(e.StackTrace);
+        }
     }
 
     private string _myText;
@@ -85,7 +256,9 @@
         set
         {
             _myText = value; 
-            CalculateSize(value);
+            Rows = Math.Max(value.Split("\n\n").Length, value.Split('\r').Length);
+            Rows = Math.Max(Rows, 20);
+            DetectNewLine(value).Wait();
         }
     }
 
@@ -99,7 +272,7 @@
 
     private async void OnWindowResize(object _, BrowserWindowSize window)
     {
-        ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {window.Height / 2}px";
+        ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {window.Height / 4}px";
         StateHasChanged();
     }
 }

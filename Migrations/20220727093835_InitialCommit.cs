@@ -34,7 +34,8 @@ namespace ScriptWriterApp.Migrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Path = table.Column<string>(type: "TEXT", nullable: true),
-                    Texts = table.Column<string>(type: "TEXT", nullable: true)
+                    Texts = table.Column<string>(type: "TEXT", nullable: true),
+                    pTexts = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,6 +56,11 @@ namespace ScriptWriterApp.Migrations
                 {
                     table.PrimaryKey("PK_TextsData", x => x.ID);
                 });
+
+            migrationBuilder.InsertData(
+                table: "PagesDatas",
+                columns: new[] { "ID", "Path", "Texts", "pTexts" },
+                values: new object[] { 1, "/", "my mom is beautiful", null });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

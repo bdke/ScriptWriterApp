@@ -10,7 +10,7 @@ namespace Functions {
         public getWindowDimensions() {
             return {
                 width: window.innerWidth,
-                height: window.innerWidth
+                height: window.innerHeight
             }
         }
     }
