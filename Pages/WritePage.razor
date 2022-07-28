@@ -1,10 +1,11 @@
-﻿@page "/writer/{PageID:int}"
+﻿@page "/writer/pages/{PageID:int}"
 @namespace ScriptWriterApp.Pages
 
-@inject IJSRuntime jsRuntime
+
 @inject IResizeListener resizeListener
 @inject ILogger<WritePage> logger
 @inject IHttpContextAccessor httpContextAccessor
+@inject BrowserService browserService
 
 @inject ChangeHistoryAccessService changeHistoryAccess
 @inject PagesDataAccessService pagesDataAccess
@@ -12,24 +13,11 @@
 
 <PageTitle>Writer</PageTitle>
 
-<RadzenButton Icon="dns" style=@ExpandButtonStyle Click="ShowPanelMenu" Visible=@ExpandButtonVisible/>
-
-
-<RadzenCard class="px-3" Style="position: absolute;margin: 0;width: fit-content; max-width: 200px; height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
-    <Animate Animation="Animations.SlideRight" Duration="TimeSpan.FromSeconds(0.5)">
-        <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
-        <RadzenPanelMenu>
-            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
-        </RadzenPanelMenu>
-    </Animate>
-</RadzenCard>
-
-
 
 <textarea rows="@Rows" @bind-value="MyText" @bind-value:event="oninput"/>
+
+@*write for a better style arrrrrrrrrrr*@
+<RadzenButton Text="Save" style=@SaveButtonStyle Click="SaveText"/>
 
 @code {
 
@@ -40,15 +28,16 @@
     private List<PagesData> pageDatas;
     private PagesData currentPageData;
 
-    //browser informations
-    IJSObjectReference? browserFunctions;
-    BrowserDimension browserDimension;
     //style
-    private string ExpandButtonStyle { get; set; }
+    private string SaveButtonStyle { get; set; }
+
+    //browser informations
+    BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
+
 
     protected override async Task OnInitializedAsync()
     {
-        string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
         log = new Logging(logger, IP);
 
         pageDatas = await pagesDataAccess.GetValueAsync();
@@ -60,18 +49,14 @@
         pTextValue = currentPageData.pTexts.Split("\n\n");
         _myText = currentPageData.Texts;
 
-
         try
         {
-            browserFunctions = await this.jsRuntime.InvokeAsync<IJSObjectReference>("Functions.getBrowserAction");
-            browserDimension = await browserFunctions.InvokeAsync<BrowserDimension>("getWindowDimensions");
-            ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
-            StateHasChanged();
+            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+            SaveButtonStyleChange(browserDimension.Height);
         } 
         catch (InvalidOperationException)
         {
-            ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {browserDimension.Height / 4}px";
-            StateHasChanged();
+            SaveButtonStyleChange(browserDimension.Height);
         }
     }
 
@@ -86,168 +71,8 @@
     //textarea
     private int Rows = 20;
 
-    private bool PanelMenuVisible = false;
-    private bool ExpandButtonVisible = true;
 
     private string[] pTextValue;
-
-    private async Task ChangeHistoryM(int i, string[] tmpValue)
-    {
-        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
-            {
-                DateTime = DateTime.Now,
-                FilePath = @$"/writer/{PageID}",
-                LineNum = i + 1,
-                Origin = pTextValue[i],
-                Modified = tmpValue[i],
-                Status = 'M'
-            }
-        );
-        log.Debug("Change History M");
-    }
-
-    private async Task ChangeHistoryMD(int i)
-    {
-        if (pTextValue[i].Replace("\n","") == "") { return; }
-
-        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
-            {
-                DateTime = DateTime.Now,
-                FilePath = @$"/writer/{PageID}",
-                LineNum = i + 1,
-                Origin = pTextValue[i],
-                Modified = "",
-                Status = 'Q'
-            }
-        );
-        log.Debug("Change History MD");
-    }
-
-    private async Task ChangeHistoryMA(int i, string[] tmpValue)
-    {
-        if (tmpValue[i].Replace("\n","") == "") { return; }
-
-        await changeHistoryAccess.AddValueAsync(new ChangeHistory()
-            {
-                DateTime = DateTime.Now,
-                FilePath = @$"/writer/{PageID}",
-                LineNum = i + 1,
-                Origin = "",
-                Modified = tmpValue[i],
-                Status = 'C'
-            }
-        );
-        log.Debug("Change History MA");
-    }
-
-    private async Task DetectNewLine(string value)
-    {
-        try
-        {
-            //modifying texts won't show
-            if ((value.Last() == '\n' && value[value.Length-2] != '\n') && value != "")
-            {
-                string[] tmpValue = value.Split("\n\n");
-                _myText += "\n";
-                if (pTextValue.Length > tmpValue.Length)
-                {
-                    for (int i = 0; i < pTextValue.Length; i++)
-                    {
-                        try
-                        {
-                            if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
-                            {
-                                await ChangeHistoryM(i, tmpValue);
-                            }
-                        }
-                        catch (IndexOutOfRangeException)
-                        {
-                            await ChangeHistoryMD(i);
-                        }
-                    }
-                    pTextValue = value.Split("\n\n");
-                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
-                    currentPageData.Texts = _myText;
-                    await pagesDataAccess.UpdateValueAsync(currentPageData);
-                }
-                else if (pTextValue.Length < tmpValue.Length)
-                {
-                    for (int i = 0; i < tmpValue.Length; i++)
-                    {
-                        try
-                        {
-                            if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
-                            {
-                                await ChangeHistoryM(i, tmpValue);
-                            }
-                        }
-                        catch (IndexOutOfRangeException)
-                        {
-                            await ChangeHistoryMA(i, tmpValue);
-                        }
-                    }
-                    pTextValue = value.Split("\n\n");
-                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
-                    currentPageData.Texts = _myText;
-                    await pagesDataAccess.UpdateValueAsync(currentPageData);
-                }
-                else if (pTextValue.Length == tmpValue.Length)
-                {
-                    for (int i = 0; i < tmpValue.Length; i++)
-                    {
-                        if (pTextValue[i].Replace("\n","") != tmpValue[i].Replace("\n","") && pTextValue[i].Replace("\n","") != "")
-                        {
-                            await ChangeHistoryM(i, tmpValue);
-                        }
-                    }
-                    pTextValue = value.Split("\n\n");
-                    currentPageData.pTexts = string.Join("\n\n",pTextValue);
-                    currentPageData.Texts = _myText;
-                    await pagesDataAccess.UpdateValueAsync(currentPageData);
-                }
-            }
-            else if (value == "")
-            {
-                for (int i = 0; i < pTextValue.Length; i++)
-                {
-                    await ChangeHistoryMD(i);
-                }
-                pTextValue = new string[] { };
-                currentPageData.pTexts = string.Join("\n\n",pTextValue);
-                currentPageData.Texts = _myText;
-                await pagesDataAccess.UpdateValueAsync(currentPageData);
-            }
-
-
-        }
-        catch (IndexOutOfRangeException)
-        {
-            for (int i = 0; i < pTextValue.Length; i++)
-            {
-                await ChangeHistoryMD(i);
-            }
-            pTextValue = new string[] { };
-            currentPageData.pTexts = "";
-            currentPageData.Texts = _myText;
-            await pagesDataAccess.UpdateValueAsync(currentPageData);
-        }
-        catch (InvalidOperationException)
-        {
-            for (int i = 0; i < pTextValue.Length; i++)
-            {
-                await ChangeHistoryMD(i);
-            }
-            pTextValue = pTextValue = new string[] { };
-            currentPageData.pTexts = "";
-            currentPageData.Texts = _myText;
-            await pagesDataAccess.UpdateValueAsync(currentPageData);
-        }
-        catch (Exception e)
-        {
-            log.Critical(e.Message);
-            log.Critical(e.StackTrace);
-        }
-    }
 
     private string _myText;
     protected string MyText
@@ -264,15 +89,16 @@
 
     //PanelMenu
 
-    private void ShowPanelMenu()
-    {
-        PanelMenuVisible = (PanelMenuVisible) ? false : true;
-        ExpandButtonVisible = (ExpandButtonVisible) ? false : true;
-    }
+    private async Task SaveText() => await TextUpdate(_myText);
 
     private async void OnWindowResize(object _, BrowserWindowSize window)
     {
-        ExpandButtonStyle = $"float:left; background-color: #28363c;position:fixed; top: {window.Height / 4}px";
+        SaveButtonStyleChange(window.Height);
+    }
+
+    private void SaveButtonStyleChange(int Height)
+    {
+        SaveButtonStyle = $"float: inline-end; background-color: #0CFF00; position: fixed; top: {Height / 1.25}px";
         StateHasChanged();
     }
 }

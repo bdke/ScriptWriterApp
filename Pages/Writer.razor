@@ -1,7 +1,116 @@
 ﻿@page "/writer"
 
+@inject BrowserService browserService
+@inject FoldersDataAccessService folderDatasAccess
 
+@inject IResizeListener resizeListener
+@inject IHttpContextAccessor httpContextAccessor
+@inject ILogger<Writer> logger
+
+
+<RadzenCard style=@BodyStyle>
+    <RadzenPanelMenu>
+        
+        @if (folders != null) 
+        {
+            if (folders.Find(x => x.ID == 1) != null)
+            {
+                if (folders.Find(x => x.ID == 1).Folders != null) 
+                {
+                    foreach (FoldersData folder in folders.Find(x => x.ID == 1).Folders)
+                    {
+                        <RadzenPanelMenuItem Text=@folder.FolderName Path=@($"/writer/folder/{folder.ID}")>
+
+                        </RadzenPanelMenuItem>
+                    }
+                }
+            }
+        }
+    </RadzenPanelMenu>
+    <RadzenButton Style="float: right"/>
+</RadzenCard>
 
 @code {
 
+    //style
+    private string BodyStyle = "";
+
+    //browser
+    BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
+
+    //folders data
+    private List<FoldersData>? folders { get; set; }
+
+    //logging
+    private Logging? log;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //base
+        string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, IP);
+        try
+        {
+            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+            BodyStyleChange(browserDimension.Height);
+        } 
+        catch (InvalidOperationException)
+        {
+            BodyStyleChange(browserDimension.Height);
+        }
+
+
+
+        //Data loading
+        folders = await folderDatasAccess.GetValueAsync();
+
+
+        //log.Debug(TreeToPath(folders));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            resizeListener.OnResized += OnWindowResize;
+        }
+    }
+
+    private async void OnWindowResize(object? _, BrowserWindowSize window)
+    {
+        BodyStyleChange(window.Height);
+    }
+
+    private void BodyStyleChange(int Height)
+    {
+        BodyStyle = $"width: 100%; padding: 0; height: {Height}px;";
+        StateHasChanged();
+    }
+
+    //private string? Path(FoldersData folder)
+    //{
+    //    if (folder.Folders is null)
+    //    {
+    //        return folder.FolderName;
+    //    }
+    //    else
+    //    {
+    //        string? path = folder.FolderName;
+    //        foreach (FoldersData foldersData in folder.Folders)
+    //        {
+    //            path += "/" + Path(foldersData);              
+    //        }
+    //        return path;
+    //    }
+    //}
+
+    //private string TreeToPath(List<FoldersData> folders)
+    //{
+    //    string v = "";
+    //    foreach (FoldersData folder in folders)
+    //    {
+    //        v += Path(folder) + "\n";
+    //    }
+    //    return v;
+    //}
 }

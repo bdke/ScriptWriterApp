@@ -22,6 +22,7 @@ namespace ScriptWriterApp {
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.EnableSensitiveDataLogging();
             });
 
             builder.Services.AddScoped<DialogService>();
@@ -31,6 +32,9 @@ namespace ScriptWriterApp {
 
             builder.Services.AddScoped<ChangeHistoryAccessService>();
             builder.Services.AddScoped<PagesDataAccessService>();
+            builder.Services.AddScoped<FoldersDataAccessService>();
+
+            builder.Services.AddScoped<BrowserService>();
 
             builder.Services.AddScoped<IResizeListener, ResizeListener>();
 

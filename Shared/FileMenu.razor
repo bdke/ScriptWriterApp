@@ -1,0 +1,74 @@
+﻿@inject BrowserService browserService
+
+@inject IResizeListener resizeListener
+@inject IHttpContextAccessor httpContextAccessor
+@inject ILogger<FileMenu> logger
+
+<RadzenButton Icon="dns" style=@ExpandButtonStyle Click="ShowPanelMenu" Visible=@ExpandButtonVisible/>
+
+<RadzenCard id="panel-menu" class="px-3" Style="position: absolute; z-index:100; margin: 0;width: fit-content; max-width: 200px; height: 100%;background-color: #28363c;" Visible=@PanelMenuVisible>
+    <Animate Animation="Animations.SlideRight" Duration="TimeSpan.FromSeconds(0.5)">
+        <RadzenButton Icon="dns" Style="float: right;background-color: #28363c" Click="ShowPanelMenu"/>
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="#" Text="Test"></RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </Animate>
+</RadzenCard>
+
+@code {
+    //browser
+    BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
+
+    //Visible
+    private bool PanelMenuVisible = false;
+    private bool ExpandButtonVisible = true;
+
+    //style
+    private string ExpandButtonStyle { get; set; }
+
+    //logging
+    private Logging log;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, IP);
+        try
+        {
+            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+            ExpandButtonStyleChange(browserDimension.Height);
+        } 
+        catch (InvalidOperationException)
+        {
+            ExpandButtonStyleChange(browserDimension.Height);
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            resizeListener.OnResized += OnWindowResize;
+        }
+    }
+
+    private void ShowPanelMenu()
+    {
+        PanelMenuVisible = (PanelMenuVisible) ? false : true;
+        ExpandButtonVisible = (ExpandButtonVisible) ? false : true;
+    }
+
+    private async void OnWindowResize(object _, BrowserWindowSize window)
+    {
+        ExpandButtonStyleChange(window.Height);
+    }
+
+    private void ExpandButtonStyleChange(int Height)
+    {
+        ExpandButtonStyle = $"float: left; background-color: #28363c; z-index: 200 ; position: fixed; top: {Height / 2}px";
+        StateHasChanged();
+    }
+}

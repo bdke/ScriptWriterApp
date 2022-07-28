@@ -46,10 +46,39 @@ namespace ScriptWriterApp.Migrations
                     b.ToTable("ChangeHistories");
                 });
 
+            modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FolderName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FoldersDataID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FoldersDataID");
+
+                    b.ToTable("FolderDatas");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            FolderName = "idk"
+                        });
+                });
+
             modelBuilder.Entity("ScriptWriterApp.Data.PagesData", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("FoldersDataID")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Path")
@@ -63,6 +92,8 @@ namespace ScriptWriterApp.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("FoldersDataID");
+
                     b.ToTable("PagesDatas");
 
                     b.HasData(
@@ -70,28 +101,30 @@ namespace ScriptWriterApp.Migrations
                         {
                             ID = 1,
                             Path = "/",
-                            Texts = "my mom is beautiful"
+                            Texts = "my mom is beautiful",
+                            pTexts = ""
                         });
                 });
 
-            modelBuilder.Entity("ScriptWriterApp.Data.TextsData", b =>
+            modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>
                 {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.HasOne("ScriptWriterApp.Data.FoldersData", null)
+                        .WithMany("Folders")
+                        .HasForeignKey("FoldersDataID");
+                });
 
-                    b.Property<string>("FilePath")
-                        .HasColumnType("TEXT");
+            modelBuilder.Entity("ScriptWriterApp.Data.PagesData", b =>
+                {
+                    b.HasOne("ScriptWriterApp.Data.FoldersData", null)
+                        .WithMany("Pages")
+                        .HasForeignKey("FoldersDataID");
+                });
 
-                    b.Property<int?>("LineNum")
-                        .HasColumnType("INTEGER");
+            modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>
+                {
+                    b.Navigation("Folders");
 
-                    b.Property<string>("Text")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("TextsData");
+                    b.Navigation("Pages");
                 });
 #pragma warning restore 612, 618
         }

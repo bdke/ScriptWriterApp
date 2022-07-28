@@ -1,0 +1,73 @@
+﻿@page "/writer/folder/{FolderID:int}"
+
+@inject FoldersDataAccessService foldersAccessService
+@inject NavigationManager Nav
+@inject BrowserService browserService
+
+@inject IResizeListener resizeListener
+@inject IHttpContextAccessor httpContextAccessor
+@inject ILogger<FoldersPage> logger
+
+<RadzenCard style=@BodyStyle>
+    <RadzenPanelMenu>
+       @if (FolderID == 1)
+       {
+           Nav.NavigateTo("/writer");
+       }
+       else if (FolderID <= foldersData.Count && FolderID != 0)
+       {
+            if (foldersData.Find(x => x.ID == FolderID).Folders != null) {
+                foreach (FoldersData folder in foldersData.Find(x => x.ID == FolderID).Folders)
+                {
+                    <RadzenPanelMenuItem Text=@folder.FolderName>
+
+                    </RadzenPanelMenuItem>
+                }
+            }
+        }
+
+    </RadzenPanelMenu>
+    <RadzenButton Style="float: right"/>
+</RadzenCard>
+
+
+@code {
+    [Parameter]
+    public int FolderID { get; set; }
+
+    //style
+    private string BodyStyle = "";
+
+    //browser
+    BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
+
+    //logging
+    private Logging log;
+
+    private List<FoldersData> foldersData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, IP);
+
+        foldersData = await foldersAccessService.GetValueAsync();
+        var foldersDataID = from t in foldersData select t.ID;
+        if (!foldersDataID.Contains(FolderID)) { Nav.NavigateTo("/Error"); }
+        try
+        {
+            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+            BodyStyleChange(browserDimension.Height);
+        } 
+        catch (InvalidOperationException)
+        {
+            BodyStyleChange(browserDimension.Height);
+        }
+    }
+
+    private void BodyStyleChange(int Height)
+    {
+        BodyStyle = $"width: 100%; padding: 0; height: {Height}px;";
+        StateHasChanged();
+    }
+}

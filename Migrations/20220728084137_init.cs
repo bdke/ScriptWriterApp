@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ScriptWriterApp.Migrations
 {
-    public partial class InitialCommit : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,6 +28,25 @@ namespace ScriptWriterApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FolderDatas",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FolderName = table.Column<string>(type: "TEXT", nullable: true),
+                    FoldersDataID = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FolderDatas", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_FolderDatas_FolderDatas_FoldersDataID",
+                        column: x => x.FoldersDataID,
+                        principalTable: "FolderDatas",
+                        principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PagesDatas",
                 columns: table => new
                 {
@@ -35,32 +54,38 @@ namespace ScriptWriterApp.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Path = table.Column<string>(type: "TEXT", nullable: true),
                     Texts = table.Column<string>(type: "TEXT", nullable: true),
-                    pTexts = table.Column<string>(type: "TEXT", nullable: true)
+                    pTexts = table.Column<string>(type: "TEXT", nullable: true),
+                    FoldersDataID = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PagesDatas", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TextsData",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    FilePath = table.Column<string>(type: "TEXT", nullable: true),
-                    LineNum = table.Column<int>(type: "INTEGER", nullable: true),
-                    Text = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TextsData", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_PagesDatas_FolderDatas_FoldersDataID",
+                        column: x => x.FoldersDataID,
+                        principalTable: "FolderDatas",
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.InsertData(
+                table: "FolderDatas",
+                columns: new[] { "ID", "FolderName", "FoldersDataID" },
+                values: new object[] { 1, "idk", null });
+
+            migrationBuilder.InsertData(
                 table: "PagesDatas",
-                columns: new[] { "ID", "Path", "Texts", "pTexts" },
-                values: new object[] { 1, "/", "my mom is beautiful", null });
+                columns: new[] { "ID", "FoldersDataID", "Path", "Texts", "pTexts" },
+                values: new object[] { 1, null, "/", "my mom is beautiful", "" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FolderDatas_FoldersDataID",
+                table: "FolderDatas",
+                column: "FoldersDataID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PagesDatas_FoldersDataID",
+                table: "PagesDatas",
+                column: "FoldersDataID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -72,7 +97,7 @@ namespace ScriptWriterApp.Migrations
                 name: "PagesDatas");
 
             migrationBuilder.DropTable(
-                name: "TextsData");
+                name: "FolderDatas");
         }
     }
 }

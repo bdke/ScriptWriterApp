@@ -141,4 +141,63 @@ namespace ScriptWriterApp.Functions
             }
         }
     }
+
+    public class FoldersDataAccessService : DatabaseAccessService<FoldersData>
+    {
+        public FoldersDataAccessService(AppDbContext context, ILogger<PagesDataAccessService> logger) : base(context, logger)
+        {
+        }
+
+        public override async Task<bool> AddValueAsync(FoldersData obj)
+        {
+            try
+            {
+                dbContext.FolderDatas.Add(obj);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task<bool> DeleteValueAsync(FoldersData obj)
+        {
+            try
+            {
+                dbContext.FolderDatas.Remove(obj);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task<List<FoldersData>> GetValueAsync()
+        {
+            return await dbContext.FolderDatas.ToListAsync();
+        }
+
+        public override async Task<bool> UpdateValueAsync(FoldersData obj)
+        {
+            try
+            {
+                var Exist = dbContext.FolderDatas.FirstOrDefault(x => x.ID == obj.ID);
+                if (Exist != null)
+                {
+                    dbContext.Update(obj);
+                    await dbContext.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
 }

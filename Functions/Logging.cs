@@ -16,6 +16,11 @@
             logger.LogInformation($"[{IP}] {message}");
         }
 
+        public void Trace(string message)
+        {
+            logger.LogTrace($"[{IP}] {message}");
+        }
+
         public void Debug(string message)
         {
             logger.LogDebug($"[{IP}] {message}");

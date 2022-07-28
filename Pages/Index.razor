@@ -14,13 +14,16 @@
 <RadzenDataGrid class="mt-2 px-4" AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@changes" TItem="ChangeHistory" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
     <Columns>
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="ID" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="DateTime" Filterable="false" Title="Time" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="FilePath" Filterable="false" Title="Location" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="LineNum" Filterable="false" Title="Line Number" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="Origin" Filterable="false" Title="Original Text" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="Modified" Filterable="false" Title="Modified Text" Frozen="true" Width="70px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn TItem="ChangeHistory" Property="Status" Filterable="false" Title="Status" Frozen="true" Width="70px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="DateTime" Filterable="false" Title="Time" Frozen="true" Width="50px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="FilePath" Filterable="false" Title="Location" Frozen="true" Width="50px" TextAlign="TextAlign.Left" >
+            <Template Context="data">
+                <RadzenLink Path=@(data.FilePath) Text=@data.FilePath/>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="LineNum" Filterable="false" Title="Line Number" Frozen="true" Width="25px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="Origin" Filterable="false" Title="Original Text" Frozen="true" Width="70px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="Modified" Filterable="false" Title="Modified Text" Frozen="true" Width="70px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="Status" Filterable="false" Title="Status" Frozen="true" Width="25px" TextAlign="TextAlign.Center" />
     </Columns>
 </RadzenDataGrid>
 
