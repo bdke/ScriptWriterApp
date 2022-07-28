@@ -1,12 +1,10 @@
 ﻿@page "/writer"
 
-@inject BrowserService browserService
-@inject FoldersDataAccessService folderDatasAccess
+@inject NavigationManager Nav
 
-@inject IResizeListener resizeListener
 @inject IHttpContextAccessor httpContextAccessor
 @inject ILogger<Writer> logger
-
+@*
 
 <RadzenCard style=@BodyStyle>
     <RadzenPanelMenu>
@@ -28,18 +26,18 @@
         }
     </RadzenPanelMenu>
     <RadzenButton Style="float: right"/>
-</RadzenCard>
+</RadzenCard>*@
 
 @code {
 
-    //style
-    private string BodyStyle = "";
+    ////style
+    //private string BodyStyle = "";
 
-    //browser
-    BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
+    ////browser
+    //BrowserWindowSize browserDimension = new BrowserWindowSize() { Height = 0, Width = 0 };
 
-    //folders data
-    private List<FoldersData>? folders { get; set; }
+    ////folders data
+    //private List<FoldersData>? folders { get; set; }
 
     //logging
     private Logging? log;
@@ -49,43 +47,45 @@
         //base
         string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
         log = new Logging(logger, IP);
-        try
-        {
-            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
-            BodyStyleChange(browserDimension.Height);
-        } 
-        catch (InvalidOperationException)
-        {
-            BodyStyleChange(browserDimension.Height);
-        }
+
+        Nav.NavigateTo("/writer/folder/1");
+        //try
+        //{
+        //    BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+        //    BodyStyleChange(browserDimension.Height);
+        //} 
+        //catch (InvalidOperationException)
+        //{
+        //    BodyStyleChange(browserDimension.Height);
+        //}
 
 
 
-        //Data loading
-        folders = await folderDatasAccess.GetValueAsync();
+        ////Data loading
+        //folders = await folderDatasAccess.GetValueAsync();
 
 
         //log.Debug(TreeToPath(folders));
     }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            resizeListener.OnResized += OnWindowResize;
-        }
-    }
+    //protected override void OnAfterRender(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        resizeListener.OnResized += OnWindowResize;
+    //    }
+    //}
 
-    private async void OnWindowResize(object? _, BrowserWindowSize window)
-    {
-        BodyStyleChange(window.Height);
-    }
+    //private async void OnWindowResize(object? _, BrowserWindowSize window)
+    //{
+    //    BodyStyleChange(window.Height);
+    //}
 
-    private void BodyStyleChange(int Height)
-    {
-        BodyStyle = $"width: 100%; padding: 0; height: {Height}px;";
-        StateHasChanged();
-    }
+    //private void BodyStyleChange(int Height)
+    //{
+    //    BodyStyle = $"width: 100%; padding: 0; height: {Height}px;";
+    //    StateHasChanged();
+    //}
 
     //private string? Path(FoldersData folder)
     //{

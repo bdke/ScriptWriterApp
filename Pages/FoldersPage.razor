@@ -1,33 +1,50 @@
 ﻿@page "/writer/folder/{FolderID:int}"
 
 @inject FoldersDataAccessService foldersAccessService
+@inject PagesDataAccessService pagesDataAccess
 @inject NavigationManager Nav
 @inject BrowserService browserService
+@inject DialogService DialogService
+@inject ContextMenuService ContextMenuService
 
 @inject IResizeListener resizeListener
 @inject IHttpContextAccessor httpContextAccessor
 @inject ILogger<FoldersPage> logger
 
+    
+
 <RadzenCard style=@BodyStyle>
     <RadzenPanelMenu>
-       @if (FolderID == 1)
+       @if (FolderID <= foldersData.Count && FolderID != 0)
        {
-           Nav.NavigateTo("/writer");
-       }
-       else if (FolderID <= foldersData.Count && FolderID != 0)
-       {
-            if (foldersData.Find(x => x.ID == FolderID).Folders != null) {
-                foreach (FoldersData folder in foldersData.Find(x => x.ID == FolderID).Folders)
+            if (foldersData != null) {
+                List<FoldersData> querryFolders = foldersData.FindAll(x => x.FoldersDataID == FolderID);
+                foreach (FoldersData folder in querryFolders)
                 {
-                    <RadzenPanelMenuItem Text=@folder.FolderName>
+                    <RadzenPanelMenuItem Icon="folder" Path=@($"/writer/folder/{folder.ID}") Text=@folder.FolderName>
 
                     </RadzenPanelMenuItem>
+                    <RadzenButton Icon="remove_circle" Click=@(async (args) => await RemoveFolder(args,folder)) Style="background-color: transparent; width: 49%;"></RadzenButton>
+                    <RadzenButton Icon="edit" Click=@(async (args) => await ShowFolderRenameDialog(args,folder)) Style="background-color: transparent; width: 50%; float: right;"></RadzenButton>
+                    
                 }
             }
-        }
 
+            if (currentFolderPages != null)
+            {
+                List<PagesData> querryPages = currentFolderPages.FindAll(x => x.FoldersDataID == FolderID);
+                foreach (PagesData pages in querryPages)
+                {
+                    <RadzenPanelMenuItem Icon="description" Path=@($"writer/pages/{pages.ID}") Text=@pages.Title>
+
+                    </RadzenPanelMenuItem>
+                    <RadzenButton Icon="remove_circle" Click=@(async (args) => await RemoveFile(args, pages)) Style="background-color: transparent; width: 49%;"></RadzenButton>
+                    <RadzenButton Icon="edit" Style="background-color: transparent; width: 50%; float: right;"></RadzenButton>
+                }
+            }
+       }
     </RadzenPanelMenu>
-    <RadzenButton Style="float: right"/>
+    <RadzenButton Text="Create" Style="float: right" Click="ShowCreateDialog"/>
 </RadzenCard>
 
 
@@ -44,14 +61,25 @@
     //logging
     private Logging log;
 
+    //databsae data
     private List<FoldersData> foldersData;
+
+    private List<PagesData> currentFolderPages;
 
     protected override async Task OnInitializedAsync()
     {
         string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
         log = new Logging(logger, IP);
 
+        await Init();
+    }
+
+    private async Task Init()
+    {
+
+        currentFolderPages = await pagesDataAccess.GetValueAsync();
         foldersData = await foldersAccessService.GetValueAsync();
+
         var foldersDataID = from t in foldersData select t.ID;
         if (!foldersDataID.Contains(FolderID)) { Nav.NavigateTo("/Error"); }
         try
@@ -63,11 +91,52 @@
         {
             BodyStyleChange(browserDimension.Height);
         }
+        log.Debug($"Current url: ./writer/folder/{FolderID}");
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            resizeListener.OnResized += OnWindowResize;
+            
+            StateHasChanged();
+        }
+        
+    }
+
+    private async void OnWindowResize(object? _, BrowserWindowSize window)
+    {
+        BodyStyleChange(window.Height);
     }
 
     private void BodyStyleChange(int Height)
     {
         BodyStyle = $"width: 100%; padding: 0; height: {Height}px;";
         StateHasChanged();
+    }
+
+    //Button\
+    private async Task ShowCreateDialog()
+    {
+        var result = await DialogService.OpenAsync("Create Folder/File", ds =>
+    @<RadzenCard Style="padding: 0px;">
+                                    <RadzenTextBox class="mb-4" Style="width: 100%;" @oninput=@(args => GetInputName((string)args.Value))/>
+                                    <RadzenButton Text="Folder" Style="width: 30%;" Click="CreateNewFolder"></RadzenButton>
+                                    <RadzenButton Text="File" Style="width: 30%; float: right;" Click="CreateNewFile"></RadzenButton>
+        </RadzenCard>
+    ,new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
+        );
+    }
+
+    private async Task ShowFolderRenameDialog(MouseEventArgs args, FoldersData folder)
+    {
+        var result = await DialogService.OpenAsync("Rename", ds =>
+            @<RadzenCard Style="padding: 0px;">
+                <RadzenTextBox class="mb-4" Style="width: 100%;" @oninput=@(args => GetInputName((string)args.Value))/>
+                <RadzenButton Text="Confirm" Style="width: 100%;" Click=@(async (args) => await RenameFolder(args,folder))></RadzenButton>
+            </RadzenCard>
+    ,new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
+        );
     }
 }

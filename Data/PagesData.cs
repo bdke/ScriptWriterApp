@@ -1,4 +1,6 @@
 ﻿using ScriptWriterApp.IData;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ScriptWriterApp.Data
 {
@@ -8,5 +10,9 @@ namespace ScriptWriterApp.Data
         public string? Path { get; set; }
         public string? Texts { get; set; }
         public string? pTexts { get; set; }
+        public string? Title { get; set; }
+        [ForeignKey("FoldersData")]
+        public int? FoldersDataID { get; set; }
+        
     }
 }

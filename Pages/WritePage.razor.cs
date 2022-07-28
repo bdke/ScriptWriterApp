@@ -72,12 +72,11 @@ namespace ScriptWriterApp.Pages
             }
         }
 
-        private async Task DetectNewLine(string value)
+        private async Task DetectNewLine(string value, bool manual = false)
         {
             try
             {
-                //modifying texts won't show
-                if ((value.Last() == '\n' && value[value.Length - 2] != '\n') && value != "")
+                if (value.Last() == '\n' && value[value.Length - 2] != '\n' && value != "" || manual)
                 {
                     string[] tmpValue = value.Split("\n\n");
                     _myText += "\n";

@@ -87,9 +87,12 @@
         }
     }
 
-    //PanelMenu
 
-    private async Task SaveText() => await TextUpdate(_myText);
+
+    private async Task SaveText() 
+    {
+        await DetectNewLine(_myText, true);
+    }
 
     private async void OnWindowResize(object _, BrowserWindowSize window)
     {

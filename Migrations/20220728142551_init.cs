@@ -55,6 +55,7 @@ namespace ScriptWriterApp.Migrations
                     Path = table.Column<string>(type: "TEXT", nullable: true),
                     Texts = table.Column<string>(type: "TEXT", nullable: true),
                     pTexts = table.Column<string>(type: "TEXT", nullable: true),
+                    Title = table.Column<string>(type: "TEXT", nullable: true),
                     FoldersDataID = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
@@ -70,12 +71,7 @@ namespace ScriptWriterApp.Migrations
             migrationBuilder.InsertData(
                 table: "FolderDatas",
                 columns: new[] { "ID", "FolderName", "FoldersDataID" },
-                values: new object[] { 1, "idk", null });
-
-            migrationBuilder.InsertData(
-                table: "PagesDatas",
-                columns: new[] { "ID", "FoldersDataID", "Path", "Texts", "pTexts" },
-                values: new object[] { 1, null, "/", "my mom is beautiful", "" });
+                values: new object[] { 1, "root", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FolderDatas_FoldersDataID",

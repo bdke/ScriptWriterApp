@@ -11,7 +11,7 @@ using ScriptWriterApp.Data;
 namespace ScriptWriterApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220728084137_init")]
+    [Migration("20220728142551_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,7 +70,7 @@ namespace ScriptWriterApp.Migrations
                         new
                         {
                             ID = 1,
-                            FolderName = "idk"
+                            FolderName = "root"
                         });
                 });
 
@@ -89,6 +89,9 @@ namespace ScriptWriterApp.Migrations
                     b.Property<string>("Texts")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("pTexts")
                         .HasColumnType("TEXT");
 
@@ -97,15 +100,6 @@ namespace ScriptWriterApp.Migrations
                     b.HasIndex("FoldersDataID");
 
                     b.ToTable("PagesDatas");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = 1,
-                            Path = "/",
-                            Texts = "my mom is beautiful",
-                            pTexts = ""
-                        });
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>
