@@ -35,6 +35,9 @@ namespace ScriptWriterApp.Migrations
                     b.Property<string>("Modified")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Modifier")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Origin")
                         .HasColumnType("TEXT");
 
@@ -98,6 +101,23 @@ namespace ScriptWriterApp.Migrations
                     b.HasIndex("FoldersDataID");
 
                     b.ToTable("PagesDatas");
+                });
+
+            modelBuilder.Entity("ScriptWriterApp.Data.UsersData", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("IP")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UsersDatas");
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>

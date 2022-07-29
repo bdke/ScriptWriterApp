@@ -9,6 +9,7 @@ namespace ScriptWriterApp.Pages
         {
             await changeHistoryAccess.AddValueAsync(new ChangeHistory()
             {
+                Modifier = userName,
                 DateTime = DateTime.Now,
                 FilePath = @$"/writer/pages/{PageID}",
                 LineNum = i + 1,
@@ -26,6 +27,7 @@ namespace ScriptWriterApp.Pages
 
             await changeHistoryAccess.AddValueAsync(new ChangeHistory()
             {
+                Modifier = userName,
                 DateTime = DateTime.Now,
                 FilePath = @$"/writer/pages/{PageID}",
                 LineNum = i + 1,
@@ -43,6 +45,7 @@ namespace ScriptWriterApp.Pages
 
             await changeHistoryAccess.AddValueAsync(new ChangeHistory()
             {
+                Modifier = userName,
                 DateTime = DateTime.Now,
                 FilePath = @$"/writer/pages/{PageID}",
                 LineNum = i + 1,
@@ -79,7 +82,14 @@ namespace ScriptWriterApp.Pages
                 if (value.Last() == '\n' && value[value.Length - 2] != '\n' && value != "" || manual)
                 {
                     string[] tmpValue = value.Split("\n\n");
-                    _myText += "\n";
+                    if (!manual && MyText.Length > pMyText.Length)
+                    {
+                        _myText += "\n";
+                    }
+                    else
+                    {
+                        _myText.Remove(_myText.Length - 1,2);
+                    }
                     if (pTextValue.Length > tmpValue.Length)
                     {
                         for (int i = 0; i < pTextValue.Length; i++)

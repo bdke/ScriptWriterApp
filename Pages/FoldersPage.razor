@@ -11,20 +11,25 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inject ILogger<FoldersPage> logger
 
-    
+<PageTitle>Explorer</PageTitle>
+
+<CascadingAuthenticationState>
+<AuthorizeView>
+<Authorized>
 
 <RadzenCard style=@BodyStyle>
     <RadzenPanelMenu>
-       @if (FolderID <= foldersData.Count && FolderID != 0)
+       @if (FolderID != 0)
        {
             if (foldersData != null) {
                 List<FoldersData> querryFolders = foldersData.FindAll(x => x.FoldersDataID == FolderID);
                 foreach (FoldersData folder in querryFolders)
                 {
+                    log.Trace($"{folder.FolderName} with FolderID \"{folder.FoldersDataID}\" componet created");
                     <RadzenPanelMenuItem Icon="folder" Path=@($"/writer/folder/{folder.ID}") Text=@folder.FolderName>
 
                     </RadzenPanelMenuItem>
-                    <RadzenButton Icon="remove_circle" Click=@(async (args) => await RemoveFolder(args,folder)) Style="background-color: transparent; width: 49%;"></RadzenButton>
+                    <RadzenButton Icon="remove_circle" Click=@(async (args) => await ShowConfirmDialog(args,folder)) Style="background-color: transparent; width: 49%;"></RadzenButton>
                     <RadzenButton Icon="edit" Click=@(async (args) => await ShowFolderRenameDialog(args,folder)) Style="background-color: transparent; width: 50%; float: right;"></RadzenButton>
                     
                 }
@@ -35,6 +40,7 @@
                 List<PagesData> querryPages = currentFolderPages.FindAll(x => x.FoldersDataID == FolderID);
                 foreach (PagesData pages in querryPages)
                 {
+                    log.Trace($"{pages.Title} with FolderID \"{pages.FoldersDataID}\" componet created");
                     <RadzenPanelMenuItem Icon="description" Path=@($"writer/pages/{pages.ID}") Text=@pages.Title>
 
                     </RadzenPanelMenuItem>
@@ -46,6 +52,10 @@
     </RadzenPanelMenu>
     <RadzenButton Text="Create" Style="float: right" Click="ShowCreateDialog"/>
 </RadzenCard>
+
+</Authorized>
+</AuthorizeView>
+</CascadingAuthenticationState>
 
 
 @code {
@@ -68,46 +78,54 @@
 
     protected override async Task OnInitializedAsync()
     {
+        //setup logging
         string? IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-        log = new Logging(logger, IP);
-
+        log = new Logging(logger,Nav.Uri ,IP);
+        log.Debug("Logging setup successfully");
+        //setup page
         await Init();
     }
 
     private async Task Init()
     {
-
+        //Recieve data from database
         currentFolderPages = await pagesDataAccess.GetValueAsync();
         foldersData = await foldersAccessService.GetValueAsync();
 
+        //clearing null data in database
+        await foldersAccessService.ClearNullDataAsync(foldersData);
+        await pagesDataAccess.ClearNullDataAsync(currentFolderPages);
+
+        //detect if page parameter is valid
         var foldersDataID = from t in foldersData select t.ID;
         if (!foldersDataID.Contains(FolderID)) { Nav.NavigateTo("/Error"); }
-        try
-        {
-            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
-            BodyStyleChange(browserDimension.Height);
-        } 
-        catch (InvalidOperationException)
-        {
-            BodyStyleChange(browserDimension.Height);
-        }
-        log.Debug($"Current url: ./writer/folder/{FolderID}");
+
+        //setup elements' sttyle
+        log.Info("Initialized");
     }
 
-    protected override async void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             resizeListener.OnResized += OnWindowResize;
-            
-            StateHasChanged();
+            log.Debug("First Rendered");
+            BrowserWindowSize browserDimension = await browserService.GetWindowSize();
+            BodyStyleChange(browserDimension.Height);
         }
-        
+        log.Debug("Rendered");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        log.Debug($"Current parameter: \"{FolderID}\"");
+        await Init();
     }
 
     private async void OnWindowResize(object? _, BrowserWindowSize window)
     {
         BodyStyleChange(window.Height);
+        log.Debug("Windows size changed");
     }
 
     private void BodyStyleChange(int Height)
@@ -116,14 +134,14 @@
         StateHasChanged();
     }
 
-    //Button\
+    //Dialogs
     private async Task ShowCreateDialog()
     {
         var result = await DialogService.OpenAsync("Create Folder/File", ds =>
     @<RadzenCard Style="padding: 0px;">
                                     <RadzenTextBox class="mb-4" Style="width: 100%;" @oninput=@(args => GetInputName((string)args.Value))/>
-                                    <RadzenButton Text="Folder" Style="width: 30%;" Click="CreateNewFolder"></RadzenButton>
-                                    <RadzenButton Text="File" Style="width: 30%; float: right;" Click="CreateNewFile"></RadzenButton>
+                                    <RadzenButton Text="Folder" Style="width: fit-content;" Click="CreateNewFolder"></RadzenButton>
+                                    <RadzenButton Text="File" Style="width: fit-content;" Click="CreateNewFile"></RadzenButton>
         </RadzenCard>
     ,new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
         );
@@ -136,7 +154,14 @@
                 <RadzenTextBox class="mb-4" Style="width: 100%;" @oninput=@(args => GetInputName((string)args.Value))/>
                 <RadzenButton Text="Confirm" Style="width: 100%;" Click=@(async (args) => await RenameFolder(args,folder))></RadzenButton>
             </RadzenCard>
-    ,new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
+            ,new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
         );
+    }
+
+    private async Task ShowConfirmDialog(MouseEventArgs args, FoldersData folder)
+    {
+        var result = await DialogService.Confirm("Are you sure?","Confirm",
+            new ConfirmOptions { OkButtonText = "Yes", CancelButtonText="No", CloseDialogOnOverlayClick = true, CloseDialogOnEsc = true });
+        if (result == true) {await RemoveFolder(args,folder);}
     }
 }

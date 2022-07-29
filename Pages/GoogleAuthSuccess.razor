@@ -1,0 +1,32 @@
+﻿@page "/auth/google-login-success"
+
+@inject UsersDataAccessService usersDataAccess
+@inject NavigationManager Nav
+
+@inject ILogger<GoogleAuthSuccess> logger
+@inject IHttpContextAccessor httpContextAccessor
+
+@code {
+
+    private Logging log;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        string userName = httpContextAccessor.HttpContext.User.Claims.ElementAt(1).Value;
+        log = new Logging(logger, Nav.Uri, IP);
+        log.Debug("Logging setup successfully");
+
+        List<UsersData> users = await usersDataAccess.GetValueAsync();
+
+        var usersIP = from i in users select i.IP;
+
+        if (!usersIP.Contains(IP))
+        {
+            log.Info($"New user login: \"{userName}\"");
+            await usersDataAccess.AddValueAsync(new UsersData() { UserName = userName ,IP = IP});
+        }
+
+        Nav.NavigateTo("/");
+    }
+}

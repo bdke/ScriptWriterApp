@@ -140,6 +140,17 @@ namespace ScriptWriterApp.Functions
                 throw;
             }
         }
+
+        public async Task ClearNullDataAsync(List<PagesData> pages)
+        {
+            foreach (PagesData page in pages)
+            {
+                if (page.FoldersDataID == null)
+                {
+                    await DeleteValueAsync(page);
+                }
+            }
+        }
     }
 
     public class FoldersDataAccessService : DatabaseAccessService<FoldersData>
@@ -186,6 +197,76 @@ namespace ScriptWriterApp.Functions
             try
             {
                 var Exist = dbContext.FolderDatas.FirstOrDefault(x => x.ID == obj.ID);
+                if (Exist != null)
+                {
+                    dbContext.Update(obj);
+                    await dbContext.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task ClearNullDataAsync(List<FoldersData> folders)
+        {
+            foreach (FoldersData folder in folders)
+            {
+                if (folder.FoldersDataID == null && folder.ID > 1)
+                {
+                    await DeleteValueAsync(folder);
+                }
+            }
+        }
+    }
+
+    public class UsersDataAccessService : DatabaseAccessService<UsersData>
+    {
+        public UsersDataAccessService(AppDbContext context, ILogger<UsersDataAccessService> logger) : base(context, logger)
+        {
+        }
+
+        public override async Task<bool> AddValueAsync(UsersData obj)
+        {
+            try
+            {
+                dbContext.UsersDatas.Add(obj);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task<bool> DeleteValueAsync(UsersData obj)
+        {
+            try
+            {
+                dbContext.UsersDatas.Remove(obj);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task<List<UsersData>> GetValueAsync()
+        {
+            return await dbContext.UsersDatas.ToListAsync();
+        }
+
+        public override async Task<bool> UpdateValueAsync(UsersData obj)
+        {
+            try
+            {
+                var Exist = dbContext.UsersDatas.FirstOrDefault(x => x.ID == obj.ID);
                 if (Exist != null)
                 {
                     dbContext.Update(obj);

@@ -1,17 +1,30 @@
 ﻿@inject NavigationManager NavManager
+@inject DialogService DialogService
 
 <RadzenCard Style="width: 100%; padding: 0;">
     <RadzenMenu Click="OnParentClicked" Style="padding: 4px;">
         <img src="Images/logo.svg" width="50" height="50"/>
-        <RadzenMenuItem Text="Home" Icon="home" Style="">
-        </RadzenMenuItem>
-        <RadzenMenuItem Text="Writer" Icon="description">
-        </RadzenMenuItem>
+        <CascadingAuthenticationState>
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenLabel class="my-auto" Style="float: right" Text=@context.User.Claims.ElementAt(1).Value/>
+                    <img class="my-auto" width="50" height="50" style="float: right; margin-left: 5px" src=@context.User.Claims.Where(s => s.Type == "picture").FirstOrDefault().Value/>
+                    <RadzenMenuItem Text="Home" Icon="home" Style="">
+                    </RadzenMenuItem>
+                    <RadzenMenuItem Text="Writer" Icon="description">
+                    </RadzenMenuItem>
+                </Authorized>
+                <NotAuthorized>
+                    <RadzenMenuItem Text="Login" Icon="login">
+                    </RadzenMenuItem>
+                </NotAuthorized>
+            </AuthorizeView>
+        </CascadingAuthenticationState>
     </RadzenMenu>
 </RadzenCard>
 
 @code {
-    void OnParentClicked(MenuItemEventArgs args)
+    private async Task OnParentClicked(MenuItemEventArgs args)
     {
         switch (args.Text)
         {
@@ -21,9 +34,44 @@
             case "Writer":
                 NavManager.NavigateTo("/writer");
                 break;
+            case "Login":
+                await ShowPasswordDialog();
+                break;
             default:
                 NavManager.NavigateTo("/Error");
                 break;
+        }
+    }
+
+    private async Task ShowPasswordDialog()
+    {
+        await DialogService.OpenAsync("Password", ds =>
+    @<RadzenCard Style="padding: 0px;">
+                            <RadzenTextBox Style="width: 100%" @oninput=@(async (args) => await GetDialogInput((string)args.Value))/>
+                            <RadzenButton Text="Confirm" Style="width: 100%" Click="@CheckDialogPassword"/>
+    </RadzenCard>
+    ,
+        new DialogOptions() { CloseDialogOnEsc = true, CloseDialogOnOverlayClick = true }
+    );
+    }
+
+    private string? DialogInput;
+
+    private async Task GetDialogInput(string value)
+    {
+        DialogInput = value;
+    }
+
+    private async Task CheckDialogPassword()
+    {
+        if (DialogInput == "Lambda0729")
+        {
+            NavManager.NavigateTo("/login/Lambda0729");
+        }
+        else
+        {
+            DialogService.Close();
+            await DialogService.Confirm("wrong password", "Incorrect Password", new ConfirmOptions() { OkButtonText = "OK", CancelButtonText = "Cancel" ,CloseDialogOnOverlayClick = true, CloseDialogOnEsc = true });
         }
     }
 }

@@ -11,7 +11,7 @@ using ScriptWriterApp.Data;
 namespace ScriptWriterApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220728142551_init")]
+    [Migration("20220729140613_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace ScriptWriterApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Modified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Modifier")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Origin")
@@ -100,6 +103,23 @@ namespace ScriptWriterApp.Migrations
                     b.HasIndex("FoldersDataID");
 
                     b.ToTable("PagesDatas");
+                });
+
+            modelBuilder.Entity("ScriptWriterApp.Data.UsersData", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("IP")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UsersDatas");
                 });
 
             modelBuilder.Entity("ScriptWriterApp.Data.FoldersData", b =>

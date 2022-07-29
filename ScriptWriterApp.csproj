@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="BlazorAnimate" Version="3.0.0" />
     <PackageReference Include="BlazorPro.BlazorSize" Version="6.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.7">
       <PrivateAssets>all</PrivateAssets>

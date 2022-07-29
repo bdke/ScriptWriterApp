@@ -16,6 +16,7 @@ namespace ScriptWriterApp.Migrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     DateTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Modifier = table.Column<string>(type: "TEXT", nullable: true),
                     FilePath = table.Column<string>(type: "TEXT", nullable: true),
                     LineNum = table.Column<int>(type: "INTEGER", nullable: true),
                     Origin = table.Column<string>(type: "TEXT", nullable: true),
@@ -44,6 +45,20 @@ namespace ScriptWriterApp.Migrations
                         column: x => x.FoldersDataID,
                         principalTable: "FolderDatas",
                         principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UsersDatas",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserName = table.Column<string>(type: "TEXT", nullable: true),
+                    IP = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsersDatas", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,6 +106,9 @@ namespace ScriptWriterApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "PagesDatas");
+
+            migrationBuilder.DropTable(
+                name: "UsersDatas");
 
             migrationBuilder.DropTable(
                 name: "FolderDatas");

@@ -4,17 +4,24 @@
 @using Radzen.Blazor.Rendering
 @using Microsoft.EntityFrameworkCore
 
-@inject IHttpContextAccessor httpContextAccessor
 @inject ChangeHistoryAccessService changeHistoryAccess
+@inject NavigationManager Nav
+
+@inject IHttpContextAccessor httpContextAccessor
 @inject ILogger<Index> logger
 
 <PageTitle>Scripter</PageTitle>
+
+<CascadingAuthenticationState>
+<AuthorizeView>
+<Authorized>
 
 <h3 class="text-center mt-2">Change Histories</h3>
 <RadzenDataGrid class="mt-2 px-4" AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@changes" TItem="ChangeHistory" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
     <Columns>
         <RadzenDataGridColumn TItem="ChangeHistory" Property="DateTime" Filterable="false" Title="Time" Frozen="true" Width="50px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="ChangeHistory" Property="Modifier" Filterable="false" Title="Modifier" Frozen="true" Width="40px" TextAlign="TextAlign.Left"/>
         <RadzenDataGridColumn TItem="ChangeHistory" Property="FilePath" Filterable="false" Title="Location" Frozen="true" Width="50px" TextAlign="TextAlign.Left" >
             <Template Context="data">
                 <RadzenLink Path=@(data.FilePath) Text=@data.FilePath/>
@@ -26,6 +33,10 @@
         <RadzenDataGridColumn TItem="ChangeHistory" Property="Status" Filterable="false" Title="Status" Frozen="true" Width="25px" TextAlign="TextAlign.Center" />
     </Columns>
 </RadzenDataGrid>
+
+</Authorized>
+</AuthorizeView>
+</CascadingAuthenticationState>
 
 
 
@@ -42,11 +53,11 @@
     protected override async Task OnInitializedAsync()
     {
         string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-        log = new Logging(logger, IP);
+        log = new Logging(logger, Nav.Uri ,IP);
         changes = await changeHistoryAccess.GetValueAsync();
         changes.Reverse();
 
-        log.Info("Initialized Index Page");
+        log.Info("Initialized");
         //await changeHistoryAccess.AddValueAsync(new ChangeHistory() { DateTime = DateTime.Now, FilePath = @"./", LineNum = 13, Modified = "ur mom", Origin = "fuck u", Status = 'M' });
     }
 }

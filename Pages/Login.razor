@@ -1,0 +1,35 @@
+﻿@page "/login/{Password?}"
+@namespace ScriptWriterApp.Pages
+
+@inject DialogService DialogService
+@inject NavigationManager Nav
+
+@inject IHttpContextAccessor httpContextAccessor
+@inject ILogger<Login> logger
+
+
+
+@if (Password != null)
+{
+    if (Password == "Lambda0729")
+    {
+        <a href="auth/google-login">Login</a>
+    }
+}
+@code {
+    [Parameter]
+    public string? Password { get; set; }
+
+    private Logging log;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string IP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        log = new Logging(logger, Nav.Uri , IP);
+        if (Password == null)
+        {
+            Nav.NavigateTo("/");
+        }
+        log.Debug("Initialized");
+    }
+}
